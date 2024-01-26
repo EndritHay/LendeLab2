@@ -80,3 +80,21 @@ export const navOptions = [
 
     }
   ]
+  export const loginFormControls = [
+    {
+      id: 'email',
+      type: 'email',
+      placeholder: 'Enter Your email',
+      label: 'Email',
+      componentType: 'input'
+    },
+
+    {
+      id: 'password',
+      type: 'password',
+      placeholder: 'Enter Your password',
+      label: 'Password',
+      componentType: 'input'
+    }
+
+  ]
