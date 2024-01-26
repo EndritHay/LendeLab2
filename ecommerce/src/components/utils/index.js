@@ -38,7 +38,45 @@ export const navOptions = [
       path: "/admin-view/add-product",
     },
   ];
-  export const styles = {
-    button: 
-    "mt-1.5 inline-block bg-black px-5 py-3 text-xs font-medium uppercase tracking-wide text-white"
-  };
+ 
+  //proper inputeve te register/login
+  export const registrationFormControls = [
+ 
+    {
+      id: 'name',
+      type : 'text',
+      placeholder : 'Enter Your Name',
+      label: 'Name',
+      componentType : 'input'
+    },
+    {
+      id: 'email',
+      type : 'email',
+      placeholder : 'Enter Your email',
+      label: 'Email',
+      componentType : 'input'
+    },   {
+      id: 'password',
+      type : 'password',
+      placeholder : 'Enter Your password',
+      label: 'Password',
+      componentType : 'input'
+    },   {
+      id: 'role',
+      type : '',
+      placeholder : '',
+      label: 'Role',
+      componentType : 'select',
+      options: [
+        {
+        id : 'admin',
+        label : 'Admin', 
+        },
+        {
+          id : 'costumer',
+          label : 'Costumer', 
+          }
+      ]
+
+    }
+  ]
