@@ -2,10 +2,35 @@
 import InputComponent from "@/components/FormElements/InputComponent"
 import SelectComponent from "@/components/FormElements/InputComponent/SelectComponent"
 import { registrationFormControls } from "@/components/utils"
+import { registerNewUser } from "@/services/register";
+import React, { useState } from 'react';
 
 const isRegistered = false
 
+const initialFormData = {
+    name: '',
+    email: '',
+    password: '',
+    role: 'costumer',
+};
+
 export default function Register() {
+
+    const [formData, setFormData] = useState(initialFormData);
+    console.log(formData); //marrim ose heqim cdo shkronje console log
+
+    function isFormValid() { //validimi i formes ifnotempty
+
+        return formData && formData.name && formData.name.trim() !== ''
+            && formData.email && formData.email.trim() !== ''
+            && formData.password && formData.password.trim() !== '' ? true : false
+    }
+
+    async function handleRegisterOnSubmit() {
+
+        const data = await registerNewUser(formData)
+        console.log(data);
+    }
 
     return (
         <div className="bg-white relative">
@@ -19,6 +44,8 @@ export default function Register() {
                                 }
                             </p>
                             {
+                                //mapping
+
                                 isRegistered ? (
                                     <button
                                         className="inline-flex w-full items-center justify-center bg-black px-6 py-4 text-lg 
@@ -34,16 +61,34 @@ export default function Register() {
                                                         type={controllItem.type}
                                                         placeholder={controllItem.placeholder}
                                                         label={controllItem.label}
+                                                        onChange={(event) => {
+                                                            setFormData({
+                                                                ...formData,
+                                                                [controllItem.id]: event.target.value,
+                                                            });
+                                                        }}
+                                                        value={formData[controllItem.id]}
                                                     />
                                                     :
                                                     controllItem.componentType === 'select' ? <SelectComponent
                                                         options={controllItem.options}
                                                         label={controllItem.label}
+                                                        onChange={(event) => {
+                                                            setFormData({
+                                                                ...formData,
+                                                                [controllItem.id]: event.target.value,
+                                                            });
+                                                        }}
+                                                        value={formData[controllItem.id]}
                                                     /> : null
                                             )
                                         }
-                                        <button className="inline-flex w-full items-center justify-center bg-black px-6 py-4 text-lg 
-                                text-white transition-all duration-200 ease-in-out focus:shadow font-medium uppercase trackig-wide">
+                                        <button className="disabled:opacity-50 inline-flex w-full items-center justify-center bg-black px-6 py-4 text-lg 
+                                text-white transition-all duration-200 ease-in-out focus:shadow font-medium uppercase trackig-wide"
+                                 disabled={!isFormValid()}
+                                 onClick={handleRegisterOnSubmit}
+                                 >
+
                                             Register
                                         </button>
                                     </div>
