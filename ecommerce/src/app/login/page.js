@@ -5,7 +5,10 @@ import { GlobalContext } from "@/context"
 import { login } from "@/services/login"
 import Cookies from "js-cookie"
 import { useRouter } from "next/navigation"
+import ComponentLevelLoader from "@/components/Loader/componentlevel";
 import { useContext, useEffect, useState } from "react"
+import Notification from "@/components/Notification";
+import { toast } from "react-toastify";
 
 
 const initialFormData = {
@@ -16,7 +19,7 @@ const initialFormData = {
 export default function Login() {
 
     const [formData, setFormData] = useState(initialFormData);
-    const {isAuthUser, setIsAuthUser, user, setUser} = useContext(GlobalContext);
+    const {isAuthUser, setIsAuthUser, user, setUser, componentLevelLoader, setComponentLevelLoader} = useContext(GlobalContext);
 
     const router = useRouter();
 
@@ -27,17 +30,29 @@ export default function Login() {
         return formData && formData.email && formData.email.trim() !== '' && formData.password && formData.password.trim() !== '' ? true : false
     }
     async function handleLogin() {
+        setComponentLevelLoader({loading : true, id: ''})
         const res = await login(formData);
-        console.log(res);
 
         if(res.success) {
+            toast.success(res.message, {
+            position: 'top-right',
+            autoClose: 2000,
+              });
             setIsAuthUser(true);
             setUser(res?.finalData?.user);
             setFormData(initialFormData);
             Cookies.set('token' ,res?.finalData?.token);
-            localStorage.setItem('user', JSON.stringify(res?.finalData?.user))
+            localStorage.setItem('user', JSON.stringify(res?.finalData?.user));
+            setComponentLevelLoader({loading : false, id: ''})
+
         } else {
+            toast.error(res.message, {
+                position: 'top-right',
+                autoClose: 2000,
+                  });
             setIsAuthUser(false);
+            setComponentLevelLoader({loading : false, id: ''})
+
         }
     }
     useEffect(()=> {
@@ -78,7 +93,14 @@ export default function Login() {
                                         disabled={!isValidForm()}
                                         onClick={handleLogin}
                                     >
-                                        Login
+                                        {
+                                           componentLevelLoader && componentLevelLoader.loading ? 
+                                           <ComponentLevelLoader
+                                            text={"Loging In"}
+                                            color={"#fffffff"}
+                                            loading={componentLevelLoader && componentLevelLoader.loading}
+                                           /> : 'Login' 
+                                        }
                                     </button>
                                     <div className="flex flex-col gap-2">
                                         <p>Not registered yet?</p>
@@ -97,6 +119,7 @@ export default function Login() {
                     </div>
                 </div>
             </div>
+            <Notification />
         </div>
-    )
+    );
 }

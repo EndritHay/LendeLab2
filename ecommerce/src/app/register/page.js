@@ -1,9 +1,12 @@
 'use client'
 import InputComponent from "@/components/FormElements/InputComponent"
 import SelectComponent from "@/components/FormElements/InputComponent/SelectComponent"
+import ComponentLevelLoader from "@/components/Loader/componentlevel";
+import Notification from "@/components/Notification";
 import { registrationFormControls } from "@/components/utils"
 import { registerNewUser } from "@/services/register";
-import React, { useState } from 'react';
+import React, { useEffect,useState } from 'react';
+import { toast } from "react-toastify";
 
 const isRegistered = false
 
@@ -17,6 +20,8 @@ const initialFormData = {
 export default function Register() {
 
     const [formData, setFormData] = useState(initialFormData);
+    const [isRegistered , setIsRegistered] = useState(false);
+    const { pageLevelLoader, setPageLevelLoader, isAuthUser} = useState(false);
     console.log(formData); //marrim ose heqim cdo shkronje console log
 
     function isFormValid() { //validimi i formes ifnotempty
@@ -27,10 +32,30 @@ export default function Register() {
     }
 
     async function handleRegisterOnSubmit() {
-
-        const data = await registerNewUser(formData)
+        setPageLevelLoader(true);
+        const data = await registerNewUser(formData);
+    
+        if (data.success) {
+          toast.success(data.message, {
+            position: toast.POSITION.TOP_RIGHT,
+          });
+          setIsRegistered(true);
+          setPageLevelLoader(false);
+          setFormData(initialFormData);
+        } else {
+          toast.error(data.message, {
+            position: toast.POSITION.TOP_RIGHT,
+          });
+          setPageLevelLoader(false);
+          setFormData(initialFormData);
+        }
+    
         console.log(data);
-    }
+      }
+    
+      useEffect(() => {
+        if (isAuthUser) router.push("/");
+      }, [isAuthUser]);
 
     return (
         <div className="bg-white relative">
@@ -88,6 +113,15 @@ export default function Register() {
                                  disabled={!isFormValid()}
                                  onClick={handleRegisterOnSubmit}
                                  >
+                                    {pageLevelLoader ? (
+                                        <ComponentLevelLoader
+                                        text={"Registering"}
+                                        color={"#fffffff"}
+                                        loading={pageLevelLoader}
+                                        />
+                                    ) : (
+                                    "Register"
+                                    )}
 
                                             Register
                                         </button>
@@ -97,6 +131,7 @@ export default function Register() {
                     </div>
                 </div>
             </div>
+            <Notification/>
         </div>
     )
 }
