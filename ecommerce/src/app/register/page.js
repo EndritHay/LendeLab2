@@ -4,8 +4,9 @@ import SelectComponent from "@/components/FormElements/InputComponent/SelectComp
 import ComponentLevelLoader from "@/components/Loader/componentlevel";
 import Notification from "@/components/Notification";
 import { registrationFormControls } from "@/components/utils"
+import { GlobalContext } from "@/context";
 import { registerNewUser } from "@/services/register";
-import React, { useEffect,useState } from 'react';
+import React, { useContext, useEffect,useState } from 'react';
 import { toast } from "react-toastify";
 
 const isRegistered = false
@@ -21,7 +22,7 @@ export default function Register() {
 
     const [formData, setFormData] = useState(initialFormData);
     const [isRegistered , setIsRegistered] = useState(false);
-    const { pageLevelLoader, setPageLevelLoader, isAuthUser} = useState(false);
+    const { pageLevelLoader, setPageLevelLoader, isAuthUser} = useContext(GlobalContext);
     console.log(formData); //marrim ose heqim cdo shkronje console log
 
     function isFormValid() { //validimi i formes ifnotempty
@@ -37,14 +38,14 @@ export default function Register() {
     
         if (data.success) {
           toast.success(data.message, {
-            position: toast.POSITION.TOP_RIGHT,
+            position: 'top-right',
           });
           setIsRegistered(true);
           setPageLevelLoader(false);
           setFormData(initialFormData);
         } else {
           toast.error(data.message, {
-            position: toast.POSITION.TOP_RIGHT,
+            position: 'top-right',
           });
           setPageLevelLoader(false);
           setFormData(initialFormData);
