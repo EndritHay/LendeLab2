@@ -3,14 +3,88 @@
 import InputComponent from "@/components/FormElements/InputComponent";
 import SelectComponent from "@/components/FormElements/InputComponent/SelectComponent";
 import TileComponent from "@/components/FormElements/TileComponent";
-import { AvailableSizes, adminAddProductformControls } from "@/components/utils";
+import { AvailableSizes, adminAddProductformControls, firebaseConfig, firebaseStorageURL } from "@/components/utils";
+import { initializeApp } from 'firebase/app';
+import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage'
+import { resolve } from "styled-jsx/css";
+import { useState } from "react";
+
+
+const app = initializeApp(firebaseConfig);
+const storage = getStorage(app, firebaseStorageURL);
+
+//ruajm nje string te te vecante per cdo upload dhe e ruajme ne firebase
+const createUniqueFileName = (getFile) => {
+    const timeStamp = Date.now();
+    const randomStringValue = Math.random().toString(36).substring(2,12);
+
+    return  `${getFile.name}-${timeStamp}-${randomStringValue}`;
+}
+
+async function helperForUploadingImageToFirebase(file) {
+const getFileName = createUniqueFileName(file);
+
+//me ket rresht krijojm ni folder ecommerce ne firebase
+const storageReference = ref(storage , `ecommerce/${getFileName}`);
+const uploadImage = uploadBytesResumable(storageReference, file);
+
+
+return new Promise((resolve, reject) => {
+    uploadImage.on('state_changed' , (snapshot)=> {}, (error)=>{
+        console.log(error);
+        reject(error)
+    }, ()=> {
+        getDownloadURL(uploadImage.snapshot.ref).then(downloadUrl => resolve(downloadUrl)).catch(error=> reject(error))
+    })
+})
+}
+const initialFormData = {
+    name: '',
+    price: 0,
+    description: '',
+    category: 'men',
+    sizes: [],
+    deliveryInfo: '',
+    onSale: 'no',
+    imageUrl : '',
+    priceDrog: 0,
+};
 
 
 export default function AdminAddNewProduct() {
 
-    function handleImage() {
+    const [formData, setFormData] = useState(initialFormData)
 
+    async function handleImage(event) {
+    const extractImageUrl = await helperForUploadingImageToFirebase(event.target.files[0])
+    console.log(extractImageUrl);
+
+    if(extractImageUrl !== '') {
+        setFormData({
+            ...formData,
+            imageUrl: extractImageUrl
+        })
     }
+}
+
+function handleTileClick(getCurrentItem) {
+    console.log(getCurrentItem);
+
+    let cpySizes = [...formData.sizes];
+    const index = cpySizes.findIndex(item => item.id === getCurrentItem.id)
+    if(index === -1) {
+        cpySizes.push(getCurrentItem)
+    }else{
+        cpySizes = cpySizes.filter(item => item.id !== getCurrentItem.id)
+    }
+    setFormData({
+        ...formData,
+        sizes: cpySizes,
+    })
+}
+
+
+console.log(formData);
 
     return (
         <div className="w-full mt-5 mr-0 mb-0 ml-0 relative">
@@ -25,6 +99,8 @@ export default function AdminAddNewProduct() {
                     <div className="flex gap-2 flex-col">
                         <label>Avaliable Sizes</label>
                         <TileComponent
+                        selected={formData.sizes}
+                        onClick={handleTileClick}
                         data={AvailableSizes}
                         />
                     </div>
@@ -35,6 +111,13 @@ export default function AdminAddNewProduct() {
                             type={controlItem.type}
                             placeholder={controlItem.placeholder}
                             label={controlItem.label}
+                            value={formData[controlItem.id]}
+                            onChange={(event)=> {
+                                setFormData({
+                                    ...formData,
+                                    [controlItem.id] : event.target.value
+                                })
+                            }}
                             />
                             :
                             
@@ -42,6 +125,13 @@ export default function AdminAddNewProduct() {
                             <SelectComponent
                             label={controlItem.label}
                             options={controlItem.options}
+                            value={formData[controlItem.id]}
+                            onChange={(event)=> {
+                                setFormData({
+                                    ...formData,
+                                    [controlItem.id] : event.target.value
+                                })
+                            }}
                             /> 
                             : null
                         )

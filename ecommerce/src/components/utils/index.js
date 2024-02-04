@@ -189,3 +189,14 @@ export const navOptions = [
         label: 'L'
       }
     ]
+
+    export const firebaseConfig = {
+      apiKey: "AIzaSyCrYX6Fnd3AAzk_VhuOBEa9TS-ZuJu01dc",
+      authDomain: "next-js-ecommerce-1e2b9.firebaseapp.com",
+      projectId: "next-js-ecommerce-1e2b9",
+      storageBucket: "next-js-ecommerce-1e2b9.appspot.com",
+      messagingSenderId: "318160014395",
+      appId: "1:318160014395:web:646e3f3df93c4f8ad0a01e",
+      measurementId: "G-BV8Z99GKGD"
+    };
+    export const firebaseStorageURL = 'gs://next-js-ecommerce-1e2b9.appspot.com';
