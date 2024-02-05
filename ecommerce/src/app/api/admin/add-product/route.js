@@ -1,9 +1,10 @@
 import Product from "@/components/models/product";
 import connectToDB from "@/database";
 import { NextResponse } from "next/server";
+import Joi from "joi";
 
 
-//product i add-product schema pret kto te dhena
+///product i add-product schema pret kto te dhena
 const AddNewProductSchema = Joi.object({
     name : Joi.string().required(),
     description : Joi.string().required(),

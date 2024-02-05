@@ -7,7 +7,13 @@ import { AvailableSizes, adminAddProductformControls, firebaseConfig, firebaseSt
 import { initializeApp } from 'firebase/app';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage'
 import { resolve } from "styled-jsx/css";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { addNewProduct } from "@/services/product";
+import { GlobalContext } from "@/context";
+import { toast } from "react-toastify";
+import Notification from "@/components/Notification";
+import ComponentLevelLoader from "@/components/Loader/componentlevel";
+import { useRouter } from "next/navigation";
 
 
 const app = initializeApp(firebaseConfig);
@@ -54,6 +60,9 @@ const initialFormData = {
 export default function AdminAddNewProduct() {
 
     const [formData, setFormData] = useState(initialFormData)
+    const {componentLevelLoader, setComponentLevelLoader} = useContext(GlobalContext);
+
+    const router = useRouter()
 
     async function handleImage(event) {
     const extractImageUrl = await helperForUploadingImageToFirebase(event.target.files[0])
@@ -83,6 +92,30 @@ function handleTileClick(getCurrentItem) {
     })
 }
 
+async function handleAddProduct() {
+
+    setComponentLevelLoader({loading: true , id: ''})
+    const res = await addNewProduct(formData);
+    console.log(res);
+
+    if(res.success) {
+    setComponentLevelLoader({loading: false , id: ''})
+    toast.success(res.message, {
+        position: 'top-right',
+    })
+    setFormData(initialFormData)
+    setTimeout(() => {
+        router.push('/admin-view/all-products')
+    }, 1000);
+    } else {
+    toast.error(res.message, {
+        position: 'top-right'
+
+    })
+    setComponentLevelLoader({loading: false , id: ''}) 
+    setFormData(initialFormData)
+    }
+}
 
 console.log(formData);
 
@@ -137,11 +170,21 @@ console.log(formData);
                         )
                         
                     }
-                    <button className="inline-flex w-full items-center justify-center bg-black px-6 py-4  text-lg text-white font-medium uppercase tracking-wide">
-                        Add Product
+                    <button onClick={handleAddProduct} className="inline-flex w-full items-center justify-center bg-black px-6 py-4  text-lg text-white font-medium uppercase tracking-wide"
+                    >
+                        {
+                          componentLevelLoader && componentLevelLoader.loading ?
+                          <ComponentLevelLoader
+                            text={"Adding Product"}
+                            color={"#fffffff"}
+                            loading={componentLevelLoader && componentLevelLoader.loading} 
+                            /> : 'Add Product'  
+                        }
+                        
                     </button>
                 </div>
             </div>
+            <Notification />
         </div>
     )
 }
